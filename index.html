@@ -959,6 +959,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
   </div>
 
   <div class="tab-nav">
+    <div class="tab tab-locked" id="tab-btn-dashboard" onclick="tryTab('dashboard','premium')">⭐ Tableau de bord</div>
     <div class="tab active" onclick="showTab('revenus')">Revenus</div>
     <div class="tab" onclick="showTab('fixes')">Charges</div>
     <div class="tab" onclick="showTab('credits')">Crédits</div>
@@ -973,6 +974,93 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
     <div class="tab tab-locked" id="tab-btn-interets" onclick="tryTab('interets','premium')">📈 Intérêts</div>
     <div class="tab tab-locked" id="tab-btn-rapports" onclick="tryTab('rapports','basic')">📁 Rapports</div>
     <div class="tab" onclick="showTab('analyse')">Analyse</div>
+  </div>
+
+  <!-- TABLEAU DE BORD PREMIUM -->
+  <div id="tab-dashboard" class="page">
+    <div class="premium-banner">
+      <div class="premium-banner-text">Vue d'ensemble <strong style="color:#fff">Premium</strong> · Mis à jour à chaque saisie</div>
+      <span class="premium-banner-badge">PREMIUM</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="icon">🏅</div>Votre score budgétaire</div>
+      <div class="score-area">
+        <div class="score-ring" id="dash-score-ring"><div class="score-letter" id="dash-score-letter">—</div><div class="score-word">score</div></div>
+        <div class="score-desc" id="dash-score-desc">Renseignez vos données pour obtenir votre score.</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div class="metric">
+        <div class="metric-label">Revenus</div>
+        <div class="metric-value" id="dash-rev" style="color:var(--navy)">0 €</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Dépenses</div>
+        <div class="metric-value" id="dash-dep" style="color:var(--danger)">0 €</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Épargne mensuelle</div>
+        <div class="metric-value" id="dash-ep" style="color:var(--success)">0 €</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Reste à vivre</div>
+        <div class="metric-value" id="dash-ral">0 €</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="icon">⚖️</div>Répartition 50 / 30 / 20</div>
+      <div class="ratio-block">
+        <div class="ratio-header"><span class="ratio-name">🏠 Charges fixes + crédits <span style="color:var(--text-light)">(objectif ≤ 50%)</span></span><span class="ratio-pct" id="dash-r1-pct">—</span></div>
+        <div class="progress-track"><div class="progress-fill" id="dash-r1-bar" style="width:0%;background:var(--navy)"></div></div>
+        <div class="ratio-footer"><span class="ratio-amt" id="dash-r1-amt">0 € / cible 0 €</span><span class="badge" id="dash-r1-badge">—</span></div>
+      </div>
+      <div class="ratio-block">
+        <div class="ratio-header"><span class="ratio-name">🛒 Quotidien & plaisirs <span style="color:var(--text-light)">(objectif ≤ 30%)</span></span><span class="ratio-pct" id="dash-r2-pct">—</span></div>
+        <div class="progress-track"><div class="progress-fill" id="dash-r2-bar" style="width:0%;background:var(--navy)"></div></div>
+        <div class="ratio-footer"><span class="ratio-amt" id="dash-r2-amt">0 € / cible 0 €</span><span class="badge" id="dash-r2-badge">—</span></div>
+      </div>
+      <div class="ratio-block" style="margin-bottom:0">
+        <div class="ratio-header"><span class="ratio-name">💰 Épargne & imprévus <span style="color:var(--text-light)">(objectif ≥ 20%)</span></span><span class="ratio-pct" id="dash-r3-pct">—</span></div>
+        <div class="progress-track"><div class="progress-fill" id="dash-r3-bar" style="width:0%;background:var(--navy)"></div></div>
+        <div class="ratio-footer"><span class="ratio-amt" id="dash-r3-amt">0 € / cible 0 €</span><span class="badge" id="dash-r3-badge">—</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="icon">🛡️</div>Niveau d'épargne & résilience</div>
+      <div class="resilience-grid">
+        <div class="res-box">
+          <div class="res-value" id="dash-res-mois" style="color:var(--navy)">—</div>
+          <div class="res-label">Mois de survie sans revenus</div>
+          <div class="res-bar-track"><div class="res-bar-fill" id="dash-res-bar" style="width:0%;background:var(--navy)"></div></div>
+        </div>
+        <div class="res-box">
+          <div class="res-value" id="dash-res-matelas" style="color:var(--navy)">0 €</div>
+          <div class="res-label">Matelas de sécurité cumulé/an</div>
+          <div class="res-bar-track"><div class="res-bar-fill" id="dash-res-bar2" style="width:0%;background:var(--gold)"></div></div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text-light);margin-top:6px">Objectif recommandé : 6 mois de charges couvertes par l'épargne de précaution.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="icon">📊</div>Répartition de vos finances</div>
+      <div style="position:relative;height:180px"><canvas id="dashPieChart" role="img" aria-label="Répartition des dépenses">Graphique camembert</canvas></div>
+    </div>
+
+    <div class="goto-analyse" onclick="showTab('analyse')">
+      <div class="goto-analyse-left">
+        <div class="goto-analyse-icon">📊</div>
+        <div>
+          <div class="goto-analyse-title">Voir l'analyse détaillée et mes conseils</div>
+          <div class="goto-analyse-sub">Alertes · Profil financier · Conseils personnalisés</div>
+        </div>
+      </div>
+      <div class="goto-analyse-arrow">→</div>
+    </div>
   </div>
 
   <!-- REVENUS -->
@@ -2211,6 +2299,7 @@ var CALENDLY_URL = "https://rdvagendamsconsulting.netlify.app/";
 var user = {prenom:"",nom:"",email:"",tel:""};
 var popupAutoShown = false;
 var pieChartInstance = null;
+var dashPieChartInstance = null;
 var lastData = {};
 
 /* ============================================================
@@ -2445,6 +2534,7 @@ function activerSession(){
   $("mf-tel").value    = user.tel || "";
   loadAccessLevel();
   updateConseillerUI();
+  if(ACCESS_LEVEL==="premium"){ showTab("dashboard"); }
   setTimeout(renderProgressBar, 500);
   // Lancer le tour guidé uniquement à la première connexion
   if(tourShouldStart()){
@@ -2541,12 +2631,13 @@ window.addEventListener("load", function(){
 /* ============================================================
    TABS
    ============================================================ */
-var TABS=["revenus","fixes","credits","quotidien","epargne","objectifs","simulateur","historique","profil","depenses","retraite","interets","rapports","analyse"];
+var TABS=["dashboard","revenus","fixes","credits","quotidien","epargne","objectifs","simulateur","historique","profil","depenses","retraite","interets","rapports","analyse"];
 function showTab(name){
   var tabs=document.querySelectorAll(".tab-nav .tab");
   tabs.forEach(function(t,i){t.classList.toggle("active",TABS[i]===name)});
   document.querySelectorAll("#pg-main .page").forEach(function(p){p.classList.remove("active")});
   $("tab-"+name).classList.add("active");
+  if(name==="dashboard"){renderAnalyse();renderDashboard();}
   if(name==="analyse"){renderAnalyse();renderProgressBar();}
   if(name==="simulateur")runSim();
   if(name==="historique"){initMonthSelect();renderHistorique();}
@@ -2807,6 +2898,72 @@ function renderPie(b1,b2,b3,ral){
   pieChartInstance=new Chart(ctx,{type:"pie",data:{labels:labels,datasets:[{data:data,backgroundColor:colors,borderWidth:3,borderColor:"#fff"}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var s=data.reduce(function(a,b){return a+b;},0);return c.label+" : "+Math.round(c.raw).toLocaleString("fr-FR")+"€ ("+Math.round((c.raw/s)*100)+"%)";}}}}}}); 
   var leg=$("pie-legend");leg.innerHTML="";
   labels.forEach(function(l,i){leg.innerHTML+='<div class="legend-item"><div class="legend-dot" style="background:'+colors[i]+'"></div>'+l+"</div>";});
+}
+
+/* ============================================================
+   TABLEAU DE BORD PREMIUM — vue récapitulative
+   ============================================================ */
+function renderDashboard(){
+  if(!lastData||typeof lastData.rev==="undefined")return;
+  var rev=lastData.rev||0, ep=lastData.ep||0, ral=lastData.ral||0, depenses=lastData.depenses||0;
+  var p1=lastData.p1||0, p2=lastData.p2||0, p3=lastData.p3||0;
+  var b1=lastData.b1||0, b2=lastData.b2||0, b3=lastData.b3||0;
+  var epPrec=lastData.epPrec||0;
+  var scoreLetter=lastData.score||"—";
+
+  $("dash-rev").textContent=fmt(rev);
+  $("dash-dep").textContent=fmt(depenses);
+  $("dash-ep").textContent=fmt(ep);
+  $("dash-ral").textContent=fmt(ral);
+  $("dash-ral").style.color=ral>=0?"var(--success)":"var(--danger)";
+
+  if(rev>0){
+    var color,desc;
+    if(scoreLetter==="A"){color="var(--success)";desc="Excellent ! Budget parfaitement maîtrisé. Pensez à optimiser vos investissements pour faire fructifier votre patrimoine.";}
+    else if(scoreLetter==="B"){color="var(--gold)";desc="Bon budget ! Quelques ajustements ciblés suffiront à atteindre l'équilibre parfait. Vous êtes sur la bonne voie.";}
+    else if(scoreLetter==="C"){color="#D85A30";desc="Budget déséquilibré. Identifiez les postes prioritaires à réduire. Un conseiller peut vous y aider efficacement.";}
+    else{color="var(--danger)";desc="Budget en tension. Une restructuration complète s'impose. Nos conseillers patrimoniaux sont là pour vous accompagner.";}
+    $("dash-score-letter").textContent=scoreLetter;
+    $("dash-score-letter").style.color=color;
+    $("dash-score-ring").style.borderColor=color;
+    $("dash-score-desc").textContent=desc;
+  } else {
+    $("dash-score-letter").textContent="—";
+    $("dash-score-letter").style.color="";
+    $("dash-score-ring").style.borderColor="var(--navy)";
+    $("dash-score-desc").textContent="Renseignez vos données pour obtenir votre score.";
+  }
+
+  setRatio("dash-r1",p1,50,b1,rev*0.5,false);
+  setRatio("dash-r2",p2,30,b2,rev*0.3,false);
+  setRatio("dash-r3",p3,20,b3,rev*0.2,true);
+
+  var chargesMensuelles=b1+b2;
+  var mois=chargesMensuelles>0?Math.round((epPrec/chargesMensuelles)*10)/10:0;
+  var matelas=Math.round(ep*12);
+  var pctBar=Math.min((mois/6)*100,100);
+  var pctBar2=rev>0?Math.min((matelas/(rev*12*0.2))*100,100):0;
+  var resColor=mois>=6?"#2D7A4F":mois>=3?"#8A5C00":"#8B1F1F";
+  $("dash-res-mois").textContent=rev>0?mois.toFixed(1)+" mois":"—";
+  $("dash-res-mois").style.color=resColor;
+  $("dash-res-matelas").textContent=fmt(matelas);
+  $("dash-res-bar").style.width=pctBar+"%";
+  $("dash-res-bar").style.background=resColor;
+  $("dash-res-bar2").style.width=pctBar2+"%";
+
+  var ctx=$("dashPieChart");
+  if(ctx){
+    if(dashPieChartInstance){dashPieChartInstance.destroy();dashPieChartInstance=null;}
+    var total=b1+b2+b3+Math.max(0,ral);
+    if(total>0){
+      var allL=["Charges fixes & crédits","Quotidien & plaisirs","Épargne","Reste à vivre"];
+      var allD=[b1,b2,b3,Math.max(0,ral)];
+      var allC=["#0F1C35","#B8973A","#2D7A4F","#B4B2A9"];
+      var labels=[],data=[],colors=[];
+      allL.forEach(function(l,i){if(allD[i]>0){labels.push(l);data.push(allD[i]);colors.push(allC[i]);}});
+      dashPieChartInstance=new Chart(ctx.getContext("2d"),{type:"pie",data:{labels:labels,datasets:[{data:data,backgroundColor:colors,borderWidth:3,borderColor:"#fff"}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{boxWidth:10,font:{size:10}}},tooltip:{callbacks:{label:function(c){var s=data.reduce(function(a,b){return a+b;},0);return c.label+" : "+Math.round(c.raw).toLocaleString("fr-FR")+"€ ("+Math.round((c.raw/s)*100)+"%)";}}}}}});
+    }
+  }
 }
 
 /* ============================================================
@@ -3302,6 +3459,12 @@ function applyAccessUI() {
       }
     }
   });
+  // Tableau de bord = Premium uniquement
+  var btnDash = $("tab-btn-dashboard");
+  if (btnDash && hasPremium) {
+    btnDash.classList.remove("tab-locked");
+    btnDash.setAttribute("onclick", "showTab('dashboard')");
+  }
   // Retraite = Premium uniquement
   var btnRet = $("tab-btn-retraite");
   if (btnRet && hasPremium) {
