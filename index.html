@@ -702,8 +702,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
   .features-row{grid-template-columns:1fr;gap:6px}
   .resilience-grid{grid-template-columns:1fr}
   .hero-title{font-size:22px}
-  .top-bar{padding:12px 16px}
+  .top-bar{padding:12px 16px;gap:10px}
   .pdf-section{flex-direction:column;text-align:center}
+  /* En-tête : boutons compacts pour tenir sur un téléphone */
+  .conseiller-btn,.header-btn{padding:7px 10px}
+  .conseiller-badge-priority{display:none!important}
+}
+@media(max-width:380px){
+  #header-cons-label{display:none}
+  .logo{gap:8px}
 }
 </style>
 </head>
@@ -3387,6 +3394,7 @@ function updateConseillerUI() {
   hBtn.className = "conseiller-btn " + (isPremium ? "conseiller-btn-premium" : isBasic ? "conseiller-btn-basic" : "conseiller-btn-free");
   $("header-cons-icon").textContent  = isPremium ? "⭐" : isBasic ? "📅" : "👤";
   $("header-cons-label").textContent = isPremium ? "Conseiller prioritaire" : isBasic ? "Mon conseiller" : "Contacter";
+  hBtn.setAttribute("aria-label", $("header-cons-label").textContent);
   $("header-cons-priority").style.display = isPremium ? "inline" : "none";
 
   // Analyse card
