@@ -409,6 +409,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
 .ir-row span:last-child{white-space:nowrap;color:var(--text-dark)}
 .ir-row-total{border-bottom:none;font-weight:600;font-size:13px}
 .ir-row-total span{color:var(--navy)!important}
+.ir-grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px}
 .ir-hint{font-size:10px;color:var(--text-light);line-height:1.5;margin-top:6px}
 .ret-conseil-box{background:linear-gradient(135deg,var(--navy),var(--navy-mid));border-radius:var(--radius);padding:16px 18px;margin-top:14px}
 .ret-conseil-title{font-family:'Playfair Display',serif;font-size:14px;color:var(--gold-light);margin-bottom:10px}
@@ -978,7 +979,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
     <div class="tab tab-locked" id="tab-btn-depenses" onclick="tryTab('depenses','basic')">💸 Dépenses</div>
     <div class="tab tab-locked" id="tab-btn-retraite" onclick="tryTab('retraite','premium')">Retraite</div>
     <div class="tab tab-locked" id="tab-btn-interets" onclick="tryTab('interets','premium')">📈 Intérêts</div>
-    <div class="tab" onclick="showTab('impots')">🧾 Impôts</div>
+    <div class="tab tab-locked" id="tab-btn-impots" onclick="tryTab('impots','basic')">🧾 Impôts</div>
     <div class="tab tab-locked" id="tab-btn-rapports" onclick="tryTab('rapports','basic')">📁 Rapports</div>
     <div class="tab" onclick="showTab('analyse')">Analyse</div>
   </div>
@@ -1661,6 +1662,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
   <!-- RAPPORTS & BILANS -->
   <!-- IMPÔTS -->
   <div id="tab-impots" class="page">
+    <div class="premium-banner" id="impots-banner" style="display:none">
+      <div class="premium-banner-text">Fonctionnalité <strong style="color:#fff">Basique</strong> · Accès actif</div>
+      <span class="premium-banner-badge" id="impots-plan-badge">BASIQUE</span>
+    </div>
     <div class="card">
       <div class="card-title"><div class="icon">🧾</div>Estimer mon impôt sur le revenu</div>
       <p style="font-size:12px;color:var(--text-mid);margin-bottom:14px;line-height:1.6">Impôt 2026 sur les revenus 2025. Le calcul se fait sur votre téléphone : aucune donnée n'est envoyée.</p>
@@ -1698,11 +1703,23 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
     </div>
 
     <div class="card">
-      <div class="card-title"><div class="icon">🎁</div>Crédits d'impôt</div>
+      <div class="card-title"><div class="icon">🎁</div>Réductions et crédits d'impôt</div>
       <div class="field-grid">
         <div class="field"><div class="field-label">Emploi à domicile (dépenses annuelles)</div><input type="number" id="ir-ed" min="0" placeholder="0" oninput="updateIR()"></div>
         <div class="field"><div class="field-label">Garde hors domicile, moins de 6 ans</div><input type="number" id="ir-garde" min="0" placeholder="0" oninput="updateIR()"></div>
       </div>
+      <div class="field-grid">
+        <div class="field"><div class="field-label">Dons aux associations d'aide aux personnes en difficulté</div><input type="number" id="ir-dons-aide" min="0" placeholder="0" oninput="updateIR()"></div>
+        <div class="field"><div class="field-label">Autres dons (associations, fondations…)</div><input type="number" id="ir-dons" min="0" placeholder="0" oninput="updateIR()"></div>
+      </div>
+      <div class="field field-full" style="margin-bottom:10px"><div class="field-label">Cotisations syndicales</div><input type="number" id="ir-synd" min="0" placeholder="0" oninput="updateIR()"></div>
+      <div class="field-label" style="margin-bottom:6px">Enfants scolarisés au 31 décembre 2025</div>
+      <div class="ir-grid3">
+        <div class="field"><div class="field-label">Collège</div><input type="number" id="ir-college" min="0" max="10" value="0" oninput="updateIR()"></div>
+        <div class="field"><div class="field-label">Lycée</div><input type="number" id="ir-lycee" min="0" max="10" value="0" oninput="updateIR()"></div>
+        <div class="field"><div class="field-label">Supérieur</div><input type="number" id="ir-sup" min="0" max="10" value="0" oninput="updateIR()"></div>
+      </div>
+      <div class="ir-hint">Dons : 75 % jusqu'à 1 000 € pour l'aide aux personnes en difficulté, 66 % au-delà et pour les autres dons, dans la limite de 20 % du revenu imposable. Scolarité : 61 € (collège), 153 € (lycée), 183 € (supérieur) par enfant. Cotisations syndicales : 66 %, dans la limite de 1 % des salaires.</div>
     </div>
 
     <div class="ret-results-grid">
@@ -1751,7 +1768,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
       <div class="ir-hint">Un versement fait en 2026 réduira l'impôt payé en 2027 : l'estimation utilise le barème actuel. L'épargne versée sur un PER est bloquée jusqu'à la retraite, sauf cas de déblocage anticipé (achat de la résidence principale, accidents de la vie). Constituez d'abord votre épargne de précaution.</div>
     </div>
 
-    <div class="alert alert-info"><span class="alert-icon">ℹ</span><span>Estimation pédagogique, hors prélèvements sociaux, contribution sur les hauts revenus et réductions d'impôt non listées. Elle ne constitue pas un conseil personnalisé. Vérifiez votre situation sur le <a href="https://simulateur-ir-ifi.impots.gouv.fr/calcul_impot/2026/" target="_blank" rel="noopener" style="color:inherit;font-weight:600">simulateur officiel impots.gouv.fr</a> ou prenez rendez-vous avec un conseiller MS Consulting.</span></div>
+    <div class="alert alert-info"><span class="alert-icon">ℹ</span><span>Estimation pédagogique, hors prélèvements sociaux, contribution sur les hauts revenus, frais réels, résidence alternée et réductions d'impôt non listées. Elle ne constitue pas un conseil personnalisé. Vérifiez votre situation sur le <a href="https://simulateur-ir-ifi.impots.gouv.fr/calcul_impot/2026/" target="_blank" rel="noopener" style="color:inherit;font-weight:600">simulateur officiel impots.gouv.fr</a> ou prenez rendez-vous avec un conseiller MS Consulting.</span></div>
   </div>
 
   <div id="tab-rapports" class="page">
@@ -2237,6 +2254,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
           <div class="plan-features">
             <span class="ok-feat">Objectifs financiers</span>
             <span class="ok-feat">Simulateur "Et si…"</span>
+            <span class="ok-feat">Estimation impôt et PER</span>
             <span class="ok-feat">Alertes intelligentes</span>
             <span class="ok-feat">Rapport PDF de base</span>
             <span class="no-feat">Rapport PDF complet</span>
@@ -2254,6 +2272,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
           <div class="plan-features">
             <span class="ok-feat">Objectifs financiers</span>
             <span class="ok-feat">Simulateur "Et si…"</span>
+            <span class="ok-feat">Estimation impôt et PER</span>
             <span class="ok-feat">Alertes intelligentes</span>
             <span class="ok-feat">Rapport PDF complet</span>
             <span class="ok-feat">Profil investisseur</span>
@@ -3548,7 +3567,7 @@ function loadAccessLevel() {
 function applyAccessUI() {
   var hasBasic   = (ACCESS_LEVEL === "basic" || ACCESS_LEVEL === "premium");
   var hasPremium = (ACCESS_LEVEL === "premium");
-  ["objectifs","simulateur","historique","profil","depenses","rapports"].forEach(function(name) {
+  ["objectifs","simulateur","historique","profil","depenses","rapports","impots"].forEach(function(name) {
     var btn = $("tab-btn-" + name);
     if (!btn) return;
     if (hasBasic) {
@@ -3609,7 +3628,7 @@ function tryPDF() {
    PAYWALL MODAL
    ============================================================ */
 function openPaywall(req, ctx) {
-  var subs = { objectifs:"Planifiez vos projets et suivez votre progression financière", simulateur:"Testez vos scénarios budgétaires en temps réel", pdf:"Rapport PDF professionnel aux couleurs MS Consulting", retraite:"Projetez votre retraite et calculez votre capital futur", historique:"Suivez l'évolution de votre budget mois par mois", profil:"Découvrez votre profil investisseur personnalisé", depenses:"Suivez vos dépenses au quotidien et visualisez votre disponible", rapports:"Téléchargez vos bilans mensuels et consultez l'historique 12 mois", interets:"Simulez la puissance des intérêts composés sur votre épargne" };
+  var subs = { objectifs:"Planifiez vos projets et suivez votre progression financière", simulateur:"Testez vos scénarios budgétaires en temps réel", pdf:"Rapport PDF professionnel aux couleurs MS Consulting", retraite:"Projetez votre retraite et calculez votre capital futur", historique:"Suivez l'évolution de votre budget mois par mois", profil:"Découvrez votre profil investisseur personnalisé", depenses:"Suivez vos dépenses au quotidien et visualisez votre disponible", rapports:"Téléchargez vos bilans mensuels et consultez l'historique 12 mois", interets:"Simulez la puissance des intérêts composés sur votre épargne", impots:"Estimez votre impôt sur le revenu et l'effet d'un versement PER" };
   $("paywall-sub").textContent = subs[ctx] || "Débloquez toutes les fonctionnalités";
   $("plan-basic").style.opacity   = req === "premium" ? "0.4" : "1";
   $("plan-premium").style.opacity = "1";
@@ -4892,7 +4911,9 @@ function genBilanMensuel(forceLevel){
    CALCULATEUR IMPÔT SUR LE REVENU — revenus 2025 (déclaration 2026)
    Paramètres : loi de finances 2026 (barème indexé de +0,9 %),
    CGI art. 197 (barème, plafonnement QF, abattement DOM, décote),
-   art. 199 sexdecies (emploi à domicile), art. 200 quater B (garde).
+   art. 199 sexdecies (emploi à domicile), art. 200 quater B (garde),
+   art. 200 (dons), art. 199 quater F (scolarité), art. 199 quater C
+   (cotisations syndicales).
    À METTRE À JOUR chaque année après la loi de finances.
    ============================================================ */
 var IR_PARAMS = {
@@ -4905,6 +4926,9 @@ var IR_PARAMS = {
   dom: { metropole: [0, 0], antilles: [0.30, 2450], guyane: [0.40, 4050] },
   emploiDomicile: { taux: 0.50, base: 12000, parEnfant: 1500, max: 15000 },
   garde: { taux: 0.50, plafondParEnfant: 3500 },
+  dons: { taux: 0.66, tauxAide: 0.75, plafondAide: 1000, limiteRevenu: 0.20 },
+  scolarite: { college: 61, lycee: 153, superieur: 183 },
+  syndicats: { taux: 0.66, limiteSalaires: 0.01 },
   seuilRecouvrement: 61
 };
 
@@ -4970,7 +4994,21 @@ function irCredits(f) {
   var plafED = Math.min(e.base + e.parEnfant * f.enfants, e.max);
   var cED = Math.min(Math.max(0, f.emploiDomicile), plafED) * e.taux;
   var cGarde = Math.min(Math.max(0, f.garde), P.garde.plafondParEnfant * Math.max(0, f.enfantsMoins6)) * P.garde.taux;
-  return { emploiDomicile: cED, garde: cGarde, total: cED + cGarde };
+  var salaires = f.salaire1 + (f.couple ? f.salaire2 : 0);
+  var cSynd = Math.min(Math.max(0, f.syndicats), salaires * P.syndicats.limiteSalaires) * P.syndicats.taux;
+  return { emploiDomicile: cED, garde: cGarde, syndicats: cSynd, total: cED + cGarde + cSynd };
+}
+
+// Réductions d'impôt (non remboursables) : dons et scolarité
+function irReductions(f, rni) {
+  var D = IR_PARAMS.dons, S = IR_PARAMS.scolarite;
+  var limite = rni * D.limiteRevenu;
+  var aide = Math.max(0, f.donsAide), autres = Math.max(0, f.donsAutres);
+  var base75 = Math.min(aide, D.plafondAide, limite);
+  var base66 = Math.min(aide - Math.min(aide, D.plafondAide) + autres, limite - base75);
+  var dons = base75 * D.tauxAide + Math.max(0, base66) * D.taux;
+  var scol = S.college * f.college + S.lycee * f.lycee + S.superieur * f.superieur;
+  return { dons: dons, donsReportables: aide + autres > limite, scolarite: scol, total: dons + scol };
 }
 
 // Calcul complet. per = versement PER déductible (déjà plafonné par l'appelant)
@@ -4978,12 +5016,16 @@ function irCalcul(f, per) {
   var rni = irNetSalaires(f.salaire1) + (f.couple ? irNetSalaires(f.salaire2) : 0) + Math.max(0, f.autres);
   rni = Math.max(0, Math.floor(rni - Math.max(0, per || 0)));
   var imp = irImpot(rni, f);
-  var avantCredits = imp.net < IR_PARAMS.seuilRecouvrement ? 0 : imp.net;
+  var red = irReductions(f, rni);
+  var reductionsImputees = Math.min(red.total, imp.net);
+  var apresReductions = imp.net - reductionsImputees;
+  var avantCredits = apresReductions < IR_PARAMS.seuilRecouvrement ? 0 : apresReductions;
   var cr = irCredits(f);
   var marge = irImpot(rni - 100, f).net;
   return {
     rni: rni, parts: imp.parts, bareme: imp.bareme, plafonne: imp.plafonne,
-    abattDom: imp.abattDom, decote: imp.decote, avantCredits: avantCredits,
+    abattDom: imp.abattDom, decote: imp.decote, reductions: red,
+    reductionsImputees: reductionsImputees, avantCredits: avantCredits,
     credits: cr, net: avantCredits - cr.total, tmi: imp.tmi,
     tmiEffectif: Math.max(0, (imp.net - marge) / 100),
     tauxMoyen: rni > 0 ? Math.max(0, avantCredits - cr.total) / rni : 0
@@ -5009,7 +5051,13 @@ function irLireFoyer() {
     salaire2: couple ? irNum("ir-sal2") : 0,
     autres: irNum("ir-autres"),
     emploiDomicile: irNum("ir-ed"),
-    garde: irNum("ir-garde")
+    garde: irNum("ir-garde"),
+    syndicats: irNum("ir-synd"),
+    donsAide: irNum("ir-dons-aide"),
+    donsAutres: irNum("ir-dons"),
+    college: Math.min(enfants, Math.floor(irNum("ir-college"))),
+    lycee: Math.min(enfants, Math.floor(irNum("ir-lycee"))),
+    superieur: Math.min(enfants, Math.floor(irNum("ir-sup")))
   };
 }
 
@@ -5034,14 +5082,24 @@ function updateIR() {
   h += irLigne("Impôt au barème" + (r.plafonne ? " (quotient familial plafonné)" : ""), fmt(r.bareme));
   if (r.abattDom > 0) h += irLigne("Abattement outre-mer", "− " + fmt(r.abattDom));
   if (r.decote > 0) h += irLigne("Décote", "− " + fmt(r.decote));
+  if (r.reductionsImputees < r.reductions.total) {
+    // Impôt insuffisant : seule la part imputée est déduite, le reste est perdu
+    if (r.reductionsImputees > 0) h += irLigne("Réductions dons et scolarité utilisées", "− " + fmt(r.reductionsImputees));
+    h += irLigne("Réductions perdues (impôt insuffisant)", fmt(r.reductions.total - r.reductionsImputees));
+  } else {
+    if (r.reductions.dons > 0) h += irLigne("Réduction pour dons", "− " + fmt(r.reductions.dons));
+    if (r.reductions.scolarite > 0) h += irLigne("Réduction frais de scolarité", "− " + fmt(r.reductions.scolarite));
+  }
   if (r.credits.emploiDomicile > 0) h += irLigne("Crédit emploi à domicile (50 %)", "− " + fmt(r.credits.emploiDomicile));
   if (r.credits.garde > 0) h += irLigne("Crédit frais de garde (50 %)", "− " + fmt(r.credits.garde));
+  if (r.credits.syndicats > 0) h += irLigne("Crédit cotisations syndicales (66 %)", "− " + fmt(r.credits.syndicats));
   h += irLigne(restitution ? "Restitution estimée" : "Impôt net estimé", fmt(Math.abs(r.net)), true);
   $("ir-detail").innerHTML = h;
 
   var expl = [];
   if (r.plafonne) expl.push("Votre avantage lié aux enfants est plafonné : chaque euro de revenu en plus ou en moins est taxé au taux de la tranche, comme sans enfant.");
   if (r.abattDom > 0) expl.push("L'abattement outre-mer réduit votre impôt, donc aussi votre taux marginal réel.");
+  if (r.reductions.donsReportables) expl.push("Vos dons dépassent 20 % de votre revenu imposable : l'excédent est reportable sur les 5 années suivantes.");
   if (r.decote > 0) expl.push("La décote allège l'impôt des revenus modestes, mais rend chaque euro supplémentaire plus taxé.");
   $("ir-explain").style.display = expl.length ? "flex" : "none";
   $("ir-explain-txt").textContent = expl.join(" ");
