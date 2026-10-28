@@ -404,6 +404,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
 .ret-scenario-val{font-family:'Playfair Display',serif;font-size:14px;font-weight:500;color:var(--navy)}
 .ret-scenario-rente{font-size:10px;color:var(--text-light);margin-top:2px}
 .ret-chart-wrap{position:relative;height:200px;margin:14px 0}
+/* IMPÔTS */
+.ir-row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--cream-dark);font-size:12px;color:var(--text-mid)}
+.ir-row span:last-child{white-space:nowrap;color:var(--text-dark)}
+.ir-row-total{border-bottom:none;font-weight:600;font-size:13px}
+.ir-row-total span{color:var(--navy)!important}
+.ir-hint{font-size:10px;color:var(--text-light);line-height:1.5;margin-top:6px}
 .ret-conseil-box{background:linear-gradient(135deg,var(--navy),var(--navy-mid));border-radius:var(--radius);padding:16px 18px;margin-top:14px}
 .ret-conseil-title{font-family:'Playfair Display',serif;font-size:14px;color:var(--gold-light);margin-bottom:10px}
 .ret-conseil-item{display:flex;gap:10px;margin-bottom:8px;font-size:12px;color:rgba(255,255,255,.75);line-height:1.6}
@@ -972,6 +978,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
     <div class="tab tab-locked" id="tab-btn-depenses" onclick="tryTab('depenses','basic')">💸 Dépenses</div>
     <div class="tab tab-locked" id="tab-btn-retraite" onclick="tryTab('retraite','premium')">Retraite</div>
     <div class="tab tab-locked" id="tab-btn-interets" onclick="tryTab('interets','premium')">📈 Intérêts</div>
+    <div class="tab" onclick="showTab('impots')">🧾 Impôts</div>
     <div class="tab tab-locked" id="tab-btn-rapports" onclick="tryTab('rapports','basic')">📁 Rapports</div>
     <div class="tab" onclick="showTab('analyse')">Analyse</div>
   </div>
@@ -1652,6 +1659,101 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
   </div>
 
   <!-- RAPPORTS & BILANS -->
+  <!-- IMPÔTS -->
+  <div id="tab-impots" class="page">
+    <div class="card">
+      <div class="card-title"><div class="icon">🧾</div>Estimer mon impôt sur le revenu</div>
+      <p style="font-size:12px;color:var(--text-mid);margin-bottom:14px;line-height:1.6">Impôt 2026 sur les revenus 2025. Le calcul se fait sur votre téléphone : aucune donnée n'est envoyée.</p>
+      <div class="field-grid">
+        <div class="field"><div class="field-label">Situation</div>
+          <select id="ir-situation" onchange="updateIR()">
+            <option value="seul">Seul·e (célibataire, divorcé·e, veuf·ve)</option>
+            <option value="couple">En couple (marié·e ou pacsé·e)</option>
+          </select></div>
+        <div class="field"><div class="field-label">Enfants à charge</div><input type="number" id="ir-enfants" min="0" max="10" value="0" oninput="updateIR()"></div>
+      </div>
+      <div class="field-grid">
+        <div class="field"><div class="field-label">Domicile fiscal</div>
+          <select id="ir-dom" onchange="updateIR()">
+            <option value="metropole">Métropole</option>
+            <option value="antilles">Guadeloupe, Martinique, La Réunion</option>
+            <option value="guyane">Guyane, Mayotte</option>
+          </select></div>
+        <div class="field"><div class="field-label">Dont enfants de moins de 6 ans</div><input type="number" id="ir-enfants6" min="0" max="10" value="0" oninput="updateIR()"></div>
+      </div>
+      <label class="rgpd-row" id="ir-row-pi" style="display:none">
+        <input type="checkbox" id="ir-parent-isole" onchange="updateIR()">
+        <span style="font-size:12px;color:var(--text-mid);line-height:1.5">Je vis seul·e et j'élève seul·e mes enfants (case T, parent isolé)</span>
+      </label>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="icon">💼</div>Vos revenus 2025 (annuels)</div>
+      <div class="field-grid">
+        <div class="field"><div class="field-label">Salaires nets imposables</div><input type="number" id="ir-sal1" min="0" placeholder="0" oninput="updateIR()"></div>
+        <div class="field" id="ir-field-sal2" style="display:none"><div class="field-label">Salaires du conjoint</div><input type="number" id="ir-sal2" min="0" placeholder="0" oninput="updateIR()"></div>
+      </div>
+      <div class="field field-full" style="margin-bottom:6px"><div class="field-label">Autres revenus nets imposables (fonciers, location meublée…)</div><input type="number" id="ir-autres" min="0" placeholder="0" oninput="updateIR()"></div>
+      <div class="ir-hint">Le salaire net imposable figure en bas de vos fiches de paie (cumul annuel). L'abattement de 10 % est appliqué automatiquement.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="icon">🎁</div>Crédits d'impôt</div>
+      <div class="field-grid">
+        <div class="field"><div class="field-label">Emploi à domicile (dépenses annuelles)</div><input type="number" id="ir-ed" min="0" placeholder="0" oninput="updateIR()"></div>
+        <div class="field"><div class="field-label">Garde hors domicile, moins de 6 ans</div><input type="number" id="ir-garde" min="0" placeholder="0" oninput="updateIR()"></div>
+      </div>
+    </div>
+
+    <div class="ret-results-grid">
+      <div class="ret-result-card ret-result-card-navy">
+        <div class="ret-result-label ret-result-label-light" id="ir-res-label">Impôt estimé</div>
+        <div class="ret-result-value ret-result-value-light" id="ir-res-net">0 €</div>
+        <div class="ret-result-sub ret-result-sub-light" id="ir-res-moyen">Taux moyen : 0 %</div>
+      </div>
+      <div class="ret-result-card ret-result-card-gold">
+        <div class="ret-result-label ret-result-label-dark">Taux marginal réel</div>
+        <div class="ret-result-value ret-result-value-gold" id="ir-res-tmi">0 %</div>
+        <div class="ret-result-sub ret-result-sub-dark" id="ir-res-tranche">Tranche du barème : 0 %</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="icon">🧮</div>Détail du calcul</div>
+      <div id="ir-detail"></div>
+      <div class="alert alert-info" id="ir-explain" style="display:none;margin-top:12px"><span class="alert-icon">💡</span><span id="ir-explain-txt"></span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="icon">🏦</div>Et si je versais sur un PER ?</div>
+      <div class="ret-slider-section">
+        <div class="ret-slider-header">
+          <span class="ret-slider-label">Versement PER sur l'année</span>
+          <span class="ret-slider-val" id="ir-per-val">0 €</span>
+        </div>
+        <input type="range" class="ret-slider" id="ir-per" min="0" max="35000" value="0" step="250" oninput="updateIR()">
+        <div class="ret-slider-range"><span>0 €</span><span>35 000 €</span></div>
+      </div>
+      <div class="field field-full" style="margin-bottom:6px"><div class="field-label">Plafond épargne retraite disponible (indiqué sur votre avis d'impôt)</div><input type="number" id="ir-per-plafond" min="0" placeholder="Facultatif" oninput="updateIR()"></div>
+      <div class="ret-results-grid">
+        <div class="ret-result-card ret-result-card-navy">
+          <div class="ret-result-label ret-result-label-light">Économie d'impôt</div>
+          <div class="ret-result-value ret-result-value-light" id="ir-per-gain">0 €</div>
+          <div class="ret-result-sub ret-result-sub-light" id="ir-per-gain-pct">soit 0 % du versement</div>
+        </div>
+        <div class="ret-result-card ret-result-card-gold">
+          <div class="ret-result-label ret-result-label-dark">Coût réel de l'effort</div>
+          <div class="ret-result-value ret-result-value-gold" id="ir-per-cout">0 €</div>
+          <div class="ret-result-sub ret-result-sub-dark">versement − économie</div>
+        </div>
+      </div>
+      <div class="alert alert-warning" id="ir-per-msg" style="display:none"><span class="alert-icon">⚠</span><span id="ir-per-msg-txt"></span></div>
+      <div class="ir-hint">Un versement fait en 2026 réduira l'impôt payé en 2027 : l'estimation utilise le barème actuel. L'épargne versée sur un PER est bloquée jusqu'à la retraite, sauf cas de déblocage anticipé (achat de la résidence principale, accidents de la vie). Constituez d'abord votre épargne de précaution.</div>
+    </div>
+
+    <div class="alert alert-info"><span class="alert-icon">ℹ</span><span>Estimation pédagogique, hors prélèvements sociaux, contribution sur les hauts revenus et réductions d'impôt non listées. Elle ne constitue pas un conseil personnalisé. Vérifiez votre situation sur le <a href="https://simulateur-ir-ifi.impots.gouv.fr/calcul_impot/2026/" target="_blank" rel="noopener" style="color:inherit;font-weight:600">simulateur officiel impots.gouv.fr</a> ou prenez rendez-vous avec un conseiller MS Consulting.</span></div>
+  </div>
+
   <div id="tab-rapports" class="page">
     <div class="premium-banner" id="rapports-banner" style="display:none">
       <div class="premium-banner-text">Fonctionnalité <strong style="color:#fff">Basique</strong> · Accès actif</div>
@@ -2631,7 +2733,7 @@ window.addEventListener("load", function(){
 /* ============================================================
    TABS
    ============================================================ */
-var TABS=["dashboard","revenus","fixes","credits","quotidien","epargne","objectifs","simulateur","historique","profil","depenses","retraite","interets","rapports","analyse"];
+var TABS=["dashboard","revenus","fixes","credits","quotidien","epargne","objectifs","simulateur","historique","profil","depenses","retraite","interets","impots","rapports","analyse"];
 function showTab(name){
   var tabs=document.querySelectorAll(".tab-nav .tab");
   tabs.forEach(function(t,i){t.classList.toggle("active",TABS[i]===name)});
@@ -2645,6 +2747,7 @@ function showTab(name){
   if(name==="depenses")initDepenses();
   if(name==="retraite")updateRet();
   if(name==="interets")initInterets();
+  if(name==="impots")updateIR();
   if(name==="rapports")initRapports();
 }
 
@@ -4785,6 +4888,180 @@ function genBilanMensuel(forceLevel){
 /* ============================================================
    RAPPORTS & BILANS
    ============================================================ */
+/* ============================================================
+   CALCULATEUR IMPÔT SUR LE REVENU — revenus 2025 (déclaration 2026)
+   Paramètres : loi de finances 2026 (barème indexé de +0,9 %),
+   CGI art. 197 (barème, plafonnement QF, abattement DOM, décote),
+   art. 199 sexdecies (emploi à domicile), art. 200 quater B (garde).
+   À METTRE À JOUR chaque année après la loi de finances.
+   ============================================================ */
+var IR_PARAMS = {
+  annee: 2026, revenus: 2025,
+  tranches: [[11600, 0], [29579, 0.11], [84577, 0.30], [181917, 0.41], [Infinity, 0.45]],
+  plafondDemiPart: 1807,          // avantage max par demi-part enfant
+  plafondParentIsole: 4262,       // avantage max pour la part du 1er enfant (case T)
+  decote: { seul: [897, 1982], couple: [1483, 3277], taux: 0.4525 },
+  abattSalaires: { taux: 0.10, min: 509, max: 14555 },
+  dom: { metropole: [0, 0], antilles: [0.30, 2450], guyane: [0.40, 4050] },
+  emploiDomicile: { taux: 0.50, base: 12000, parEnfant: 1500, max: 15000 },
+  garde: { taux: 0.50, plafondParEnfant: 3500 },
+  seuilRecouvrement: 61
+};
+
+function irBareme(r) {
+  var imp = 0, bas = 0;
+  IR_PARAMS.tranches.forEach(function(t) {
+    if (r > bas) imp += (Math.min(r, t[0]) - bas) * t[1];
+    bas = t[0];
+  });
+  return imp;
+}
+
+function irTrancheMarginale(rParPart) {
+  for (var i = 0; i < IR_PARAMS.tranches.length; i++) {
+    if (rParPart <= IR_PARAMS.tranches[i][0]) return IR_PARAMS.tranches[i][1];
+  }
+  return 0.45;
+}
+
+function irParts(f) {
+  var parts = f.couple ? 2 : 1;
+  for (var i = 1; i <= f.enfants; i++) parts += (i <= 2 ? 0.5 : 1);
+  if (!f.couple && f.parentIsole && f.enfants > 0) parts += 0.5;
+  return parts;
+}
+
+function irNetSalaires(s) {
+  if (s <= 0) return 0;
+  var a = IR_PARAMS.abattSalaires;
+  return s - Math.round(Math.min(Math.max(s * a.taux, a.min), a.max, s));
+}
+
+// Impôt avant crédits, à partir du revenu net imposable (rni)
+function irImpot(rni, f) {
+  var P = IR_PARAMS;
+  var parts = irParts(f);
+  var partsRef = f.couple ? 2 : 1;
+  rni = Math.max(0, Math.floor(rni));
+  var avecQF = irBareme(rni / parts) * parts;
+  var sansQF = irBareme(rni / partsRef) * partsRef;
+  var demiParts = Math.round((parts - partsRef) * 2);
+  var plafond;
+  if (!f.couple && f.parentIsole && f.enfants > 0) {
+    plafond = P.plafondParentIsole + Math.max(0, demiParts - 2) * P.plafondDemiPart;
+  } else {
+    plafond = demiParts * P.plafondDemiPart;
+  }
+  var plafonne = (sansQF - avecQF) > plafond;
+  var bareme = plafonne ? sansQF - plafond : avecQF;
+  var d = P.dom[f.dom] || P.dom.metropole;
+  var abattDom = Math.min(bareme * d[0], d[1]);
+  var apresDom = bareme - abattDom;
+  var dc = f.couple ? P.decote.couple : P.decote.seul;
+  var decote = apresDom < dc[1] ? Math.min(apresDom, Math.max(0, dc[0] - P.decote.taux * apresDom)) : 0;
+  var net = apresDom - decote;
+  var tmi = irTrancheMarginale(plafonne ? rni / partsRef : rni / parts);
+  return { parts: parts, bareme: bareme, plafonne: plafonne, abattDom: abattDom, decote: decote, net: net, tmi: tmi };
+}
+
+function irCredits(f) {
+  var P = IR_PARAMS;
+  var e = P.emploiDomicile;
+  var plafED = Math.min(e.base + e.parEnfant * f.enfants, e.max);
+  var cED = Math.min(Math.max(0, f.emploiDomicile), plafED) * e.taux;
+  var cGarde = Math.min(Math.max(0, f.garde), P.garde.plafondParEnfant * Math.max(0, f.enfantsMoins6)) * P.garde.taux;
+  return { emploiDomicile: cED, garde: cGarde, total: cED + cGarde };
+}
+
+// Calcul complet. per = versement PER déductible (déjà plafonné par l'appelant)
+function irCalcul(f, per) {
+  var rni = irNetSalaires(f.salaire1) + (f.couple ? irNetSalaires(f.salaire2) : 0) + Math.max(0, f.autres);
+  rni = Math.max(0, Math.floor(rni - Math.max(0, per || 0)));
+  var imp = irImpot(rni, f);
+  var avantCredits = imp.net < IR_PARAMS.seuilRecouvrement ? 0 : imp.net;
+  var cr = irCredits(f);
+  var marge = irImpot(rni - 100, f).net;
+  return {
+    rni: rni, parts: imp.parts, bareme: imp.bareme, plafonne: imp.plafonne,
+    abattDom: imp.abattDom, decote: imp.decote, avantCredits: avantCredits,
+    credits: cr, net: avantCredits - cr.total, tmi: imp.tmi,
+    tmiEffectif: Math.max(0, (imp.net - marge) / 100),
+    tauxMoyen: rni > 0 ? Math.max(0, avantCredits - cr.total) / rni : 0
+  };
+}
+
+/* ============================================================
+   ONGLET IMPÔTS
+   ============================================================ */
+function irNum(id) { var n = parseFloat($(id).value); return isNaN(n) || n < 0 ? 0 : n; }
+function irPct(x) { return (Math.round(x * 1000) / 10).toLocaleString("fr-FR") + " %"; }
+
+function irLireFoyer() {
+  var couple = $("ir-situation").value === "couple";
+  var enfants = Math.min(10, Math.floor(irNum("ir-enfants")));
+  return {
+    couple: couple,
+    enfants: enfants,
+    enfantsMoins6: Math.min(enfants, Math.floor(irNum("ir-enfants6"))),
+    parentIsole: !couple && enfants > 0 && $("ir-parent-isole").checked,
+    dom: $("ir-dom").value,
+    salaire1: irNum("ir-sal1"),
+    salaire2: couple ? irNum("ir-sal2") : 0,
+    autres: irNum("ir-autres"),
+    emploiDomicile: irNum("ir-ed"),
+    garde: irNum("ir-garde")
+  };
+}
+
+function irLigne(label, montant, total) {
+  return '<div class="ir-row' + (total ? ' ir-row-total' : '') + '"><span>' + label + '</span><span>' + montant + '</span></div>';
+}
+
+function updateIR() {
+  var f = irLireFoyer();
+  $("ir-field-sal2").style.display = f.couple ? "flex" : "none";
+  $("ir-row-pi").style.display = (!f.couple && f.enfants > 0) ? "flex" : "none";
+
+  var r = irCalcul(f, 0);
+  var restitution = r.net < 0;
+  $("ir-res-label").textContent = restitution ? "Restitution estimée" : "Impôt estimé";
+  $("ir-res-net").textContent = fmt(Math.abs(r.net));
+  $("ir-res-moyen").textContent = "Taux moyen : " + irPct(r.tauxMoyen) + " · " + r.parts.toLocaleString("fr-FR") + " parts";
+  $("ir-res-tmi").textContent = irPct(r.tmiEffectif);
+  $("ir-res-tranche").textContent = "Tranche du barème : " + irPct(r.tmi);
+
+  var h = irLigne("Revenu net imposable", fmt(r.rni));
+  h += irLigne("Impôt au barème" + (r.plafonne ? " (quotient familial plafonné)" : ""), fmt(r.bareme));
+  if (r.abattDom > 0) h += irLigne("Abattement outre-mer", "− " + fmt(r.abattDom));
+  if (r.decote > 0) h += irLigne("Décote", "− " + fmt(r.decote));
+  if (r.credits.emploiDomicile > 0) h += irLigne("Crédit emploi à domicile (50 %)", "− " + fmt(r.credits.emploiDomicile));
+  if (r.credits.garde > 0) h += irLigne("Crédit frais de garde (50 %)", "− " + fmt(r.credits.garde));
+  h += irLigne(restitution ? "Restitution estimée" : "Impôt net estimé", fmt(Math.abs(r.net)), true);
+  $("ir-detail").innerHTML = h;
+
+  var expl = [];
+  if (r.plafonne) expl.push("Votre avantage lié aux enfants est plafonné : chaque euro de revenu en plus ou en moins est taxé au taux de la tranche, comme sans enfant.");
+  if (r.abattDom > 0) expl.push("L'abattement outre-mer réduit votre impôt, donc aussi votre taux marginal réel.");
+  if (r.decote > 0) expl.push("La décote allège l'impôt des revenus modestes, mais rend chaque euro supplémentaire plus taxé.");
+  $("ir-explain").style.display = expl.length ? "flex" : "none";
+  $("ir-explain-txt").textContent = expl.join(" ");
+
+  // PER
+  var versement = irNum("ir-per");
+  var plafond = irNum("ir-per-plafond");
+  var deductible = plafond > 0 ? Math.min(versement, plafond) : versement;
+  $("ir-per-val").textContent = fmt(versement);
+  var gain = Math.max(0, r.avantCredits - irCalcul(f, deductible).avantCredits);
+  $("ir-per-gain").textContent = fmt(gain);
+  $("ir-per-gain-pct").textContent = "soit " + irPct(versement > 0 ? gain / versement : 0) + " du versement";
+  $("ir-per-cout").textContent = fmt(versement - gain);
+  var msg = "";
+  if (plafond > 0 && versement > plafond) msg = "Votre versement dépasse votre plafond : seuls " + fmt(plafond) + " sont déductibles.";
+  else if (versement > 0 && r.avantCredits === 0) msg = "Vous ne payez pas d'impôt sur le revenu : la déduction ne vous fait rien gagner.";
+  $("ir-per-msg").style.display = msg ? "flex" : "none";
+  $("ir-per-msg-txt").textContent = msg;
+}
+
 function initRapports(){
   var MOIS_NOMS=["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
   var sel=$("bilan-mois-select");
